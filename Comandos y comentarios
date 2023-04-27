@@ -1,4 +1,8 @@
-  ---------------------------------------------------------------------------------------------------------------------------------
+""
+"Mis apuntes personales al realizar 16 proyectos en python
+Autor: Kevin Dax Victorio Zanabria
+"""
+---------------------------------------------------------------------------------------------------------------------------------
 |								DIA 1								|
 ---------------------------------------------------------------------------------------------------------------------------------
 PARA MOSTRAR EN PANTALLA:
@@ -635,7 +639,8 @@ os.unlink(nameArchivo)						Elimina el archivo señalado,es igual que os.remove(
 os.path.basename('ruta\\archivo')				Nos devolvera el nombre del archivo dada una ruta.
 os.path.dirname('ruta\\archivo')				Nos devolvera toda la ruta en la que se encuentra el archivo.
 os.path.split('ruta\\archivo')					Nos devolvera una tupla con ('ruta_del_directorio_del_archivo','nombre_archivo')
-
+os.path.splitext('ruta\\archivo')				Nos devolvera una tupla (elemento1, elemento2) , donde ambos elementos hacen referencia al nombre del archivo o ruta padre
+								elemento2 hace referencia a la extensión con el . , y el elemetno 1 al nombre sin la extensión
 
 a=os.popen('comandoCMD')					Nos genera un objeto que guarda todo lo generado por el comando en la consola y lo podemos guargar en la variable a
 a.readlines()							Nos genera una lista donde sus elementos son cada linea generado de la consola generado por el comando cmd.
@@ -657,7 +662,7 @@ carpeta=Path('ruta/archivo')
 carpeta.read_text()						Nos permite leer directamente el contenido del archivo sin necesidad de abrirlo y cerrarlo.
 
 
-
+carpeta.parent							devuelve el nombre de la carpeta
 carpeta.name							devuelve el nombre y extensión del archivo.
 carpeta.suffix							nos devuelve la extensión del archivo.
 carpeta.stem							nos devuelve solo el nombre del archivo sin su extensión
@@ -1616,7 +1621,7 @@ shutil.move('nameFile','path')			#mueve el archivo a la ruta dada(también mueve
 
 
 carpeta_origen='ruta/nameCarpeta'					#nameCarpeta es la carpeta que vamos a comprimir, sino indicamos la ruta por defecto toma la ruta en la que estamos
-archivo_destino='ruta/nameArchivo'					#namArchivo es el archivo comprimido que va crear y almazar nameCarpeta
+archivo_destino='ruta/nameArchivo'					#namArchivo es el archivo comprimido que va crear y almacena nameCarpeta
 shutil.make_archive(archivo_destino,'zip',carpeta_origen)		#Aqui creamos el archivo con un formato zip para las rutas dadas
 shutil.make_archive(ruta_destino,'formato','ruta_origen')
 
@@ -1799,7 +1804,8 @@ print(duracion2)
 	-from mpl_toolkits.mplot3d import axes3d
 
 	
-
+math.floor(x)		n<=x<n+1		--> devuelve el maximo entero de x, nos devuelve el anterior o igual que x
+math.ceil(x)		x<=n	 		--> devuelve el mayor entero por exceso como el menor número mayor o igual que x.
 
 
 =================================================
@@ -2095,8 +2101,866 @@ enemigo_y=random.randint(50,200)						#elejimos una posicion aleatoria para nues
 
 
 
+GENERAR MOVIMIENTO ENEMIGO:
+----------------------------
+  # movimiento para el enemigo
+    if pos_enemigo_x >= 736:							#si se cumple la condicion, el enemigo tambien se desplaza en el eje y
+        pos_enemigo_x = 736
+        pos_enemigo_y += 32
+        mov_enemigo_x *= -1
+
+    elif pos_enemigo_x <= 0:							#si se cumple condicion el enemigo se desplaza en el eje y
+        pos_enemigo_x = 0
+        pos_enemigo_y += 32
+        mov_enemigo_x *= -1
 
 
+
+AGREGAR FONDO DE IMAGEN:
+-------------------------
+#cargando imagen de fondo
+fondo_imagen= pygame.image.load('Fondo.jpg')					
+
+#imagen de fondo
+    pantalla.blit(fondo_imagen,(0,0))
+
+
+
+
+DISPARAR BALAS:
+---------------
+#-----BALA-------
+#variables
+bala_imagen=pygame.image.load('bala.png')						#Se carga la imagen de la bala
+bala_posx=pj_posx									#se le da posiciones
+bala_posy=pj_posy
+bala_movy=-0.1
+bala_visible=False
+
+#crear_personaje
+def bala():
+    y=pj_posy
+    x=pj_posx
+
+    while True:
+        yield pantalla.blit(bala_imagen,(x+16,y))					#se crea una funcion, mira el ejemplo de movimiento de balas, ahi esta mas detallado
+        y+=bala_movy
+
+
+
+
+MOVIMIENTOS DE LAS BALAS:
+-----------------------------
+import pygame
+import math
+import os
+import random
+
+pygame.init()
+
+#---------PANTALLA-------
+#defino la pantalla
+pantalla=pygame.display.set_mode((800,600))
+
+#fondo de pantalla
+fondo_imagen=pygame.image.load('Fondo.jpg')
+
+#Colocando el Fondo
+def crear_fondo():
+    pantalla.blit(fondo_imagen,(0,0))
+
+
+#-----PERSONAJE-------
+#variables
+pj_imagen=pygame.image.load('cohete.png')
+pj_posx=368
+pj_posy=511
+pj_movx=0
+
+
+#crear_personaje
+def crear_personaje(x,y):
+    pantalla.blit(pj_imagen,(x,y))
+
+
+#-----ENEMIGO-------
+#variables
+enemigo_imagen=pygame.image.load('enemigo.png')
+enemigo_posx=random.randint(100,536)
+enemigo_posy=random.randint(50,236)
+enemigo_movx=0.4
+enemigo_movy=50
+
+
+#crear_personaje
+def crear_enemigo(x,y):
+    pantalla.blit(enemigo_imagen,(x,y))
+
+
+#-----BALA-------
+#variables
+bala_imagen=pygame.image.load('bala.png')
+bala_posx=pj_posx
+bala_posy=pj_posy
+bala_movy=-0.1
+
+
+#crear_bala
+def bala():
+    y=pj_posy
+    x=pj_posx
+
+    while True:
+        yield pantalla.blit(bala_imagen,(x+16,y))				#se crea un generador, para tener asi multiples objetos, y dar movimiento a cada uno de estos multiples objetos
+        y+=bala_movy
+
+#loop del juego
+running=True
+a=False
+lista=[]									#se crea una lista que contendra cada objeto generadoo, para luego llamar a cada objeto y dibujar su recorrido
+
+while running:
+    #fondo de pantalla
+    crear_fondo()
+
+    for evento in pygame.event.get():
+
+        if evento.type == pygame.QUIT:
+            running = False
+
+        if evento.type == pygame.KEYDOWN:
+            if evento.key == pygame.K_LEFT:
+                pj_movx= -0.2
+            if evento.key == pygame.K_RIGHT:
+                pj_movx= 0.2
+
+            if evento.key == pygame.K_SPACE:
+                bala_posx = pj_posx
+                bala_posy = pj_posy
+                # ------BALA-------
+                # limites de la ba
+                lista.append(bala())						#se agrega esos objetos creados a la lista
+                # colocando la bala
+                a=True
+
+        if evento.type == pygame.KEYUP:
+                if evento.key == pygame.K_LEFT or evento.key == pygame.K_RIGHT:
+                    pj_movx = 0
+
+                if evento.key == pygame.K_SPACE:
+                    pass
+
+
+    #para la bala								
+    if a:			
+        for e in lista:								#se llama a cada objeto de la lista, creados al presionar space y se le llama a cada uno de ellos con next
+            next(e)
+
+
+    #------PERSONAJE-------
+    #limites del personaje
+    if pj_posx <=0:
+        pj_posx =0
+
+    elif pj_posx >=736:
+        pj_posx = 736
+
+    #colocando al personaje y movimiento
+    crear_personaje(pj_posx,pj_posy)
+    pj_posx+=pj_movx
+
+
+
+
+
+    # ------ENEMIGO-------
+    # limites del ENEMIGO
+    if enemigo_posy <= 0:
+
+        enemigo_posy =0.00001
+        enemigo_movy*=-1
+
+
+
+    elif enemigo_posy >= 536:
+
+        enemigo_posy = 536 - 0.00001
+        enemigo_movy*=-1
+
+
+
+    if enemigo_posx <= 0:
+        enemigo_posx = 0
+        enemigo_movx*=-1
+
+        enemigo_posy+=enemigo_movy
+
+    elif enemigo_posx >= 736:
+        enemigo_posx=736
+        enemigo_movx*=-1
+
+        enemigo_posy+=enemigo_movy
+
+     # colocando enemigo y movimiento
+    crear_enemigo(enemigo_posx, enemigo_posy)
+    enemigo_posx += enemigo_movx
+
+    #actualizando pantalla
+    pygame.display.update()
+
+
+pygame.quit()
+
+#otro metodo mediante
+
+if evento.type == pygame.KEYDOWN:
+    if evento.key == pygame.K_SPACE:
+        if not bala_mostrar:
+            bala_posx=pj_posx
+            bala_posy=pj_posy
+            bala_mostrar=True
+
+
+
+
+
+DETECTAR COLISIONES:
+----------------------
+#DETECTAR COLISIONES
+def colision(x1,y1,x2,y2):
+    d= math.sqrt(math.pow(x2-x1,2) + math.pow(y2-y1,2))
+    if d <27:
+        return True
+    return False
+
+#colision
+    if colision(enemigo_posx,enemigo_posy,bala_posx,bala_posy):
+        puntaje+=1
+        print(puntaje)
+        bala_mostrar=False
+        bala_posx = pj_posx
+        bala_posy = pj_posy
+        pygame.display.set_caption('Invasion Extraterreste: Puntaje({})'.format(puntaje))
+
+        enemigo_posx = random.randint(100, 636)
+        enemigo_posy = random.randint(50, 136)
+        enemigo_movx+= 0.1 if enemigo_movx>0 else -0.1
+
+
+
+
+AGREGAR ENEMIGOS:
+-------------------
+enemigos_cantidad=n								#Aqui se define cuantos enemigos habra
+enemigos_velocidad=random.choice([-v,v])					
+enemigos_imagen = []
+enemigos_posx = []
+enemigos_posy = []
+enemigos_movx = []
+enemigos_mostrar= []
+
+for enemigo in range(enemigos_cantidad):					#aqui construimos a todos los enemigos y sus caracteristicas personales lo guardamos en distintas listas.
+enemigos_imagen.append(pygame.image.load('enemigo.png'))
+enemigos_posx.append(random.randint(0,536))
+enemigos_posy.append(random.randint(0,36))
+enemigos_movx.append(enemigos_velocidad)
+enemigos_mostrar.append(True)
+
+
+
+MOSTRAR PUNTAJE:
+-------------------
+puntaje=0
+texto_fuente=pygame.font.Font('FreeSansBold.ttf',40)
+texto_posx=5
+texto_posy=5
+
+
+while running:					#dentro del while
+        texto = texto_fuente.render(texto, True, (255, 255, 255))				#renderizamos el 'texto' cargado con la fuente especificada  para que sea como imagen, luego 													con True indicamos que sea fijo, RGB(0,0,0) indicamos el color de la fuente, y tambien 													podriamos agregar un parametro mas RGB(0,0,0) el cual seria el fondo que tendria el 'texto'
+        pantalla.blit(texto,(texto_posx,texto_posy))						#arrojamos el texto renderizado a la pantalla en las posiciones indicadas.
+
+
+AGREGAR MUSICA Y SONIDOS:
+--------------------------------
+-para agregar musica de fondo:
+	pygame.mixer.music.load('MusicaFondo.mp3')					#carga la musica que se reproducira como musica de fondo
+	pygame.mixer.music.set_volumen(0.2)						#establece el volumen, su valor varia entre 0 y 1
+	pygame.mixer.music.play(-1) 							#reproducimos la musica de fondo, en play(n), n viene a ser las veces que se va repetir, por 												defecto si no indicamos vale 1, si pondemos 2 se reproduce 2 veces, si ponemos -1 es infinitas veces
+
+
+-sonidos que ocurren en el juego:
+	sonido_disparo=pygame.mixer.Sound('disparo.mp3')				#carga el sonido indicado en la variable sonido
+	sonido_disparo.set_volumen(0.2)							#establece el volumen, su valor varia entre 0 y 1
+        sonido_disparo.play()								#reproduce el sonido por defecto 1 vez, podriamos indicar mas veces.
+
+
+	colision_music = pygame.mixer.Sound('Golpe.mp3')				#aqui otro ejemplo
+        colision_music.play()
+
+TERMINAR EL JUEGO:
+-----------------------
+fin_sin_enemigos=[]									#creamos la lista fin enemigos, que contendra puro False, que es el caso si todas las naves fueran 												destruidas
+for enemigo in range(enemigos_cantidad):
+	fin_sin_enemigos.append(False)							
+
+
+def fin():										#creamos la función fin
+	global running
+	running=False
+
+
+for enemigo in range(enemigos_cantidad):
+if enemigos_posy[enemigo] > 462:
+    if  pj_posx<= enemigos_posx[enemigo] <=pj_posx+64 or pj_posx<= enemigos_posx[enemigo]+64 <=pj_posx+64:	#Si alguna nave choca contra nuestro personaje, oculta a todas las naves y 															procede a llamar a la función
+        pj_mostrar=False
+        bala_mostrar=False
+        for enemigo in range(enemigos_cantidad):
+            enemigos_mostrar[enemigo]=False
+       	fin()
+
+	if fin_sin_enemigos == enemigos_mostrar:						#si no chochan, pero todas las naves han sido eliminadas, es decir que todas 													las naves tendran la variable False en enemigos_mostrar, procede a llamar a la funcion fin
+	fin()
+
+
+JUEGO COMPLETO
+------------------------------------------------------
+El juego completo se encuentra en esta ruta:
+"C:/Users/Usuario/OneDrive/Escritorio/Escritorio 2022/Cursos/Udemy/Federico Garay/Python TOTAL - Programador Avanzado en 16 días/Materiales/Dia 10/pygame curso/Juego_completo.py"
+
+
+
+UBICAR LA POSICION DONDE APARECERA LA PANTALLA DE PYGAME
+-------------------------------------------------------------
+# Define la posición de la ventana en la pantalla
+x_position = 200
+y_position = 50
+
+# Establece la posición de la ventana
+os.environ['SDL_VIDEO_WINDOW_POS'] = "{},{}".format(x_position, y_position)			#Establece donde apareceran las pantallas creadas sobre la pantalla del sistema.
+
+
+CONVERTIRLO EN UN .EXE
+-------------------------------
+*Primero instalamos con cmd 'pip --install pyinstaller'
+*Cuando estemos en la misma ruta del archivo.py que vamos a convertir en .exe, corremos el siguiente comando en el cmd:
+
+pyinstaller --clean --onefile --windowed  Invasión_Espacial.py	
+			
+					#--clean: indica que limpie los archivos temporales que usa para crear el exe(elimina la carpeta build que se crea)
+					#--onefile: inica que lo cree todo en un archivo exe, y que tenga todo lo necesario incluyendo los scripts usados, modulos y bibliotecas
+					#--noconsole: indica pyinstaller no incluya una consola en el archivo.exe
+					#--windowed: crea un archivo ejecutable que se ejecuta en una ventana en lugar de pantalla completa.
+			
+
+pyinstaller invasion_espacil.spec	#Este comando generará un directorio "dist" en el mismo directorio que el archivo .py, que contendrá el archivo .exe y todas las dependencias 						necesarias.
+
+
+
+
+CONVERTIR DATOS A BYTES:
+-----------------------------
+*Es recomendado convertir a bytes toda la multimedia que vaya a usar nuestro .py , las fuentes tambien, ya que al convertirlos a bytes usamos menos memoria, evitamos error de formatos que puede ocurrir, e incluso podemos empaquetar todo en un solo archivo.exe
+
+
+CONVERTIR FUENTE.TTF A BYTES:
+-------------------------------
+def fuente_a_bytes(fuente):
+    with open(fuente,'rb') as f:					#se abre el archivo de la fuente en modo 'rb' (lectura binaria)
+        ttf_bytes= f.read()						#leido el archivo binario se guarda en la variable ttf_bytes
+    return io.BytesIO(ttf_bytes)					#Carga la fuente en bytes a la memoria de modo en bytes igualmente. Esto nos ayudaria a que cuando convirtamos el .py
+									a un archivo .exe, el archivo ya no necesitaria del archivo.ttf
+
+
+fuente_bytes= fuente_a_bytes('FreeSansBold.ttf')			#se le pasa la función a la fuente
+
+fuente_texto= pygame.font.Font(fuente_bytes,24)				#Como vemos lo unico que cambio fuente que la fuente ahora estara en bytes, gracias a la función anterior
+texto=fuente_texto.render('Hola Dax',True,(0,0,0))
+
+
+*Es casi un procedimiento similar al convertir imagenes a byte o musica, o cualquier otra multimedia.
+	
+
+---------------------------------------------------------------------------------------------------------------------------------
+|								DIA 11								|
+---------------------------------------------------------------------------------------------------------------------------------
+*Antes de hacer web scraping es recomendable repasar las "reglas del web scraping".
+
+
+	-reglas del web scraping
+	-limmitacion del web scraping
+
+
+*Estructura básica de un sitio web.
+	-html		: estructura y contenido
+	-css		: diseño y estilo
+	-javascript	: elementos interactivos
+
+
+
+*Recueda que el navegador recibe codigo html, css y js.
+*el código se organiza en etiquetas
+*para buscar apuntamos a una etiqueta
+
+*usaremos las bibliotecas: (no olvides instalarlas)
+	-beautifulsoup4
+	-lxml
+	-requests
+
+
+
+EXTRAER EL TITULO DE UNA PAGINA:
+-----------------------------------
+import bs4
+import requests				
+
+
+mi_url = requests.get('url-del-sitio-web)				#se genera una clase que obtiene el codigo fuente de la url
+mi_url.text								#imprime todo el codigo fuente en formato 'str'
+mi_url.content								#muestra el contenido pero en bytes.
+
+mi_sopa = bs4.BeautifulSoup(mi_url.text,'lxml')				#bs4.BeautifulSoup lo que hace es parsear el string(en este caso el codigo fuente), descompone una cadena de texto
+									en sus componenetes sintacticos, para poder procesar y manipular dicha información de manera mas efectiva.
+									aqui se parsea el código HTML y XML, con un analizador sintactico, que por defecto es 
+									'html.parser', otros analizadores son, 'lxml' y 'html5lib'
+
+mi_etiqueta=mi_sopa.select('etiqueta')					#Nos generara una lista en base a la etiqueta html o css,etc. que le pasemos con todas las veces que se repita esa 										etiqueta y su contenido. ('etiqueta' hace referencia al nombre de la etiqueta, por ejemplo: 'title', 'p' ,etc)
+mi_sopa.select('etiqueta')[0]						#imprimira el primer elemento de la lista
+mi_sopa.select('etiqueta')[0].getText()					#imprimira el texto sin las etiquetas del primer elemento de la lista. (es decir que imprimira solo el texto)
+
+print(mi_etiqueta[0]['href'])						#en caso esa etiqueta tenga atributos, podemos llamar al valor de ese atributo simplemento usando el nombre de ese 										atributo, ya que esta se comportara como si fuera un diccionario.
+									Ten cuidado con esto, ya que si tu etiqueta no tiene ese atributo votara error por mas que otras etiquetas tengan.
+									te conviene trabajarlo dentro de un try:codigo y except:continue
+			
+
+EXTRAER ELEMENTOS DE UNA CLASE:
+--------------------------------
+Existen ciertos caracteres especiales, los cuales son:
+
+Carácter			Sintaxis				Resultados
+-------------			-----------------			----------------------
+''				soup.select('div')			Todos los elementos con la etiqueta 'div'
+#				soup.select('#estilo_4')		Elementos que contengan id='estilo4'
+.				soup.select('.columna_der')		Elementos que contengan class='columna_der'
+(ESPACIO)			soup.select('div span')			Cualquier elemento 'span' dentro de un elemento 'div'
+>				soup.select('div>span')			Cualquier elemento llamado 'span' directamente dentro de un elemento 'div', sin nada en medio.
+
+
+
+
+EXTRAER IMAGENES:
+------------------
+imagen=requests.get('url-de-la-imagen')				#extrae la imagen de la url dada y lo carga en la memoria en modo binario, ya que es este modo en que una computadora lo sabe 									leer
+imag=imagen.content						#muestra el contenido de la url, pero estara en binario OJO. Es decir que veremos la imagen en binario.
+
+archivo_imagen=open('imagen_descargada.jpg','wb')		#Lo abrimos e indicamos que vamos a escribir en binario (ya que la imagen que le daremos esta en binario)
+archivo_imagen=open('path\imagen_descargada.jpg','wb'		#Ten en cuenta la extensión al momento de crear las imagenes, podemos guardarla como vemos en cualquier ruta.
+
+archivo_imagen.write(imag)					#Le pasamos la imagen en binario y luego procede a escribir
+archivo_imagen.close()						#Cerramos el archivo, y si revisamos la carpeta, podremos ver que esta la imagen dada
+
+
+
+
+PROYECTO DE WEB SCRAPING:
+------------------------------
+*Para este proyecto usaremos la URL https://toscrape.com/ , ya que esta url nos permite practicar nuestras habilidades en web scraping.
+
+#Forma 1
+'''lista_de_libros=[]
+
+for i in range(1,51):
+    url_base=requests.get(f'http://books.toscrape.com/catalogue/page-{i}.html')
+    parseando_web=bs4.BeautifulSoup(url_base.text,'lxml').select('.product_pod')
+
+    for e in parseando_web:
+        #print(e.select('p')[0]['class'])
+        if e.select('p')[0]['class'][1] == 'Five' or e.select('p')[0]['class'][1] == 'Four':
+            lista_de_libros.append(e.select('h3')[0].select('a')[0]['title'])
+
+for libro in lista_de_libros:
+    print(libro)'''
+
+#Forma 2
+lista_libros=[]
+for i in range(1,51):
+    url_base=requests.get(f'http://books.toscrape.com/catalogue/page-{i}.html')
+    parseando_url_base=bs4.BeautifulSoup(url_base.text,'lxml').select('.product_pod')
+
+    for i in parseando_url_base:
+        if i.select('.star-rating.Four') != [] or i.select('.star-rating.Five') != []:			#Cuando el nombre de la clase o atributo, o cualquier etiqueta que vayasemos a señalar
+            lista_libros.append(i.select('h3 a')[0]['title'])						tenga espacios en su nombre, se pone un . en cada espacio o sino no lo va reconocer.
+
+
+for libro in lista_libros:
+    print(libro)
+
+
+---------------------------------------------------------------------------------------------------------------------------------
+|								DIA 12								|
+---------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+---------------------------------------------------------------------------------------------------------------------------------
+|								DIA 14								|
+---------------------------------------------------------------------------------------------------------------------------------
+*Para este proyecto necesitaremos un compilador c , descargalo de este sitio https://visualstudio.microsoft.com/es/downloads/
+
+*Las bibliotecas que usaremos en este proyecto son y sus versiones:
+				- cmake				=3.21.4
+				- dlib				=19.22.1	/ 19.23.1
+				- face-recognition		=1.3.0
+				- face-recognition-models 	=0.3.0
+				- numpy				=1.21.4
+				- opencv-python			=4.5.4.58
+				- pip 				=21.1.3
+				- pillow			=8.4.0
+
+*La version de python que usaremos es 3.10.0
+
+
+
+PASO 1: CARGAR IMAGENES
+--------------------------------
+from cv import cv
+import face_recognition 
+
+foto_control = face_recognition.load_image_file('FotoA.jpg')			#carga la imagen, esa imagen sera el control
+foto_prueba = face_recognition.load_image_file('FotoB.jpg')			#carga la imagen, esta imagen sera la imagen que probaremos para ver si esta registrado
+
+foto_control = cv2.cvtColor(foto_control, cv2.COLOR_BGR2RGB)			#pasa la imagen a formato rgb, por que en este formato cv2 sabe trabajar
+foto_prueba = cv2.cvtColor(foto_prueba, cv2.COLOR_BGR2RGB)			#pasa la imagen a RGB, y los estamos guardando en la misma variable
+
+cv2.imshow('foto control', foto_control)					#muestra la imagen en una pantalla asi como pygame.display, y en la primera variable se la un titulo
+cv2.imshow('foto prueba', foto_prueba)
+
+cv2.waitKey(0)									#evita que se cierre el programa para poder ver las imagenes, con waitKey(0) indicamos que el programa espere
+										la pulsacion de una tecla indifinidamente.
+
+cv2.waitKey(1)									#Indicaremos que espere 1 milisegundo a que se presione una tecla antes de pasar al siguiente frame
+										en Resumen, el valor del atributo indica el tiempo de espera en milisegundo	
+
+
+
+
+cap.release()									cierra la camara web, libera todos los recursos usados por esta variable, como esta variable apunto a la
+										camara web, entonces cierra la camara web, mas no las ventanas por que ese es otro recurso OJO.
+cv2.destroyAllWindows()								Cierra todas las ventanas creadas por OpenCV, esto es util en caso queden ventanas abiertas, con esto nos 											aseguramos que se cieeren todas					
+
+
+
+
+PASO 2: MOSTRAR CARAS
+----------------------------------------------------------------
+
+lugar_cara_A = face_recognition.face_locations(foto_control)			#localiza cada cara que aparezca en la imagen, y guarda su posicion de cada cara en una tupla de 4 elementos
+										(y1,x2,y2,x1), siendo como si fueran matematicas el primer punto es mas alejado, y el segundo el mas cerca si 
+										los agruparamos en pares, pero recuerda que aqui las coordenadas es igual que pygame
+
+
+cara_codificada_A = face_recognition.face_encodings(foto_control)		#codifica la imagen para que nuestro sistema entienda donde hay una cara, se codifica para tener una mayor
+										precision al comparar carasd
+
+
+cv2.rectangle(foto_control, pt1, pt2,(0,255,0),2)				#1er atributo es: la imagen donde se mostrara el rectangulo, el 2do y 3er atributo es 											pt1=(x1,y1) y pt2=(x2,y2); que hacen referencia a los puntos del cuadrado(la coordenadas es igual que pygame)
+										el 4to atributo es color en formato RGB, y el ultimo hace referencia al grosor 2
+
+EJEMPLO:
+#Localizar cara
+#para foto A
+lugar_cara_A = face_recognition.face_locations(foto_control)[0]			#para nuestro ejemplo solo nos localiza una cara, por eso tendra solo un elemento el cual llamanos con indice 0
+cara_codificada_A = face_recognition.face_encodings(foto_control)[0]		#Lo mismo que face_locations
+
+#para foto B
+lugar_cara_B = face_recognition.face_locations(foto_prueba)[0]
+cara_codificada_B = face_recognition.face_locations(foto_prueba)[0]
+
+#mostrar rectangulo
+cv2.rectangle(foto_control,
+              (lugar_cara_A[3],lugar_cara_A[0]),(lugar_cara_A[1],lugar_cara_A[2]),
+              (0,255,0),
+              2)
+
+cv2.rectangle(foto_prueba,
+              (lugar_cara_B[3],lugar_cara_B[0]),(lugar_cara_B[1],lugar_cara_B[2]),
+              (0,255,0),
+              2)
+
+
+
+
+RECONOCIENDO LA CARA Y PONIENDOLE EL CUADRADO VERDE EN UN VIDEO
+ººººººººººººººººººººººººººººººººººººººººººººººººººººººººººººººººººººººººººººººººººººººººººººººººººººººººººººººººººººººººººººººººº
+ºfrom cv2 import cv2														º
+ºimport face_recognition as fr													º
+º																º
+º# Crear objeto de captura de video												º
+ºcap = cv2.VideoCapture(0, cv2.CAP_DSHOW)											º
+º																º
+º# Bucle para leer los fotogramas y mostrarlos											º
+ºwhile True:															º
+º    # Leer un nuevo fotograma													º
+º    ret, frame = cap.read()													º
+º																º
+º    #Esto yo lo he implementado -INICIO-											º
+º    #para que ponga un cuadrado en la cara reconocida del video								º
+º    try:															º
+º        cara_frame = fr.face_locations(frame)[0]										º
+º        cv2.rectangle(frame,													º
+º                      (cara_frame[3],cara_frame[0]),(cara_frame[1],cara_frame[2]),						º
+º                      (0,255,0),												º
+º                      2)													º
+º    except:															º
+º        pass															º
+º    #-FINAL-															º
+º																º
+º    # Mostrar el fotograma en una ventana											º
+º    cv2.imshow('Video', frame)													º
+º																º
+º    # Esperar 1 milisegundo y comprobar si se presionó la tecla 'q' para salir							º
+º    if cv2.waitKey(1) & 0xFF == ord('q'):											º
+º        break															º
+º																º
+º# Liberar el objeto de captura y cerrar todas las ventanas de OpenCV								º
+ºcap.release()															º
+ºcv2.destroyAllWindows()													º
+º																º
+º																º
+ººººººººººººººººººººººººººººººººººººººººººººººººººººººººººººººººººººººººººººººººººººººººººººººººººººººººººººººººººººººººººººººººº
+cv2.waitKey(1) 				indica que espere un milisegundo para que presionen tecla antes de pasar al siguiente frame, esto devuelve -1 si no se presiona una tecla
+					y si se presiona una tecla, devuelve el valor de la tecla en codigo ASCII
+&					es un operador logico como AND, pero este lo hace bit a bit
+0xFF					Es una representación binaria de 8 bits de la tecla presionada. El valor 0xFF es una máscara utilizada para asegurarse de que solo se consideran los 8 						bits menos significativos del valor devuelto por cv2.waitKey(), se asegura que este en Ascii el valor al que le hagamos &
+
+ord('tecla_del_teclado')		devuelve el valor de la tecla del teclado pasada como parámetro, el valor lo devuelve respecto a su valor en Ascii.
+cap2.release()				cierra la camara en web en pocas palabras y libera la memoria de la variable cap2
+cv2.destroyAllWindows()			cierra todas las ventanas abiertas por OpenCV, ya sean por cv2.imshow() o por cv2.nameWindow(),etc
+
+img_resized = cv2.resize(img, (640, 480))			#cv2.resize() nos permite modificar el tamaño en dimensiones de la imagen que le pasemos.
+cv2.imshow('Imagen redimensionada', img_resized)		#y ahora mostraremos la imagen redimensionada y ya no la otra
+
+
+
+cap = cv2.VideoCapture(0)
+cap.set(cv2.CAP_PROP_FPS, 30)					#Cambiamos los FPS de imshow, que por lo general vale 30, esto varia segun tu hardware y tu camara.
+ret, frame = cap.read()
+cv2.imshow('Fotograma', frame)
+
+				
+cap = cv2.VideoCapture(0)					# Abrir la cámara web
+default_fps = cap.get(cv2.CAP_PROP_FPS)				# Obtener la tasa de fotogramas por defecto
+
+
+
+cap = cv2.VideoCapture(0)					#Abrimos la camara
+cap.set(cv2.CAP_PROP_FPS, 30)					#Modificamos el fps, dando otro valor en el segundo parametro
+
+
+
+cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)			#Capturamos el video en la variable cap
+# Establecer la resolución deseada	
+cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)				#Modificamos la resolucion que tendra en el ancho la camara web
+cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)				#Modificamos la resolucion altura
+
+
+
+
+
+PASO 3: COMPARAR CARAS
+------------------------------------------
+#REALIZAR COMPARACION								#hara una comparación entre una lista de caras y una cara de prueba, todas codificadas en el paso anterior
+resultado = fr.compare_faces([codifi_cara_A],codifi_cara_B)			#compara las caras codificadas con la cara codificada_cara_B, devuelve un valor Booleano
+print(resultado)								#determinara el resultado en base a distancia, que por defecto es 0,6
+
+
+
+resultado = fr.compare_faces([codifi_cara_A],codifi_cara_B,tolerancia)		#tolerancia es un valor float, que por defecto como dije arribita es 0,6 sino ponemos este atributo
+
+
+
+
+
+
+MEDIR LA DIFERENCIA (DISTANCIA)
+---------------------------------------
+#REALIZAR COMPARACION								
+resultado = fr.compare_faces([codifi_cara_A],codifi_cara_B,0.3)			#comparamos las caras codificadas y la cara de prueba pero esta vez le damos otra tolerancia
+print(resultado)								
+
+#MEDIR LA DISTANCIA
+distancia = fr.face_distance([codifi_cara_A],codifi_cara_B)			#nos da el valor de la distancia de las caras, este valor hace referencia a la tolerancia en la comparacion
+print(distancia)								#muestra el valor de la distancia entre las imagenes
+
+
+
+
+
+MOSTRAR LA DISTANCIA
+----------------------------
+#MOSTRAR DISTANCIA								#mostrara la distancia o lo que le especifiquemos en pantalla
+cv2.putText(foto,'texto',posicion(x,y),tipoLetra,escalada,Color,grosor)		#la funcion real es asi, en tipos de letras tenemos muchas como cv2.FONT_HERSHEY_COMPLEX, etc.
+										la escalada se refiere al tamaño de la letra, el color el que elijamos en formato RGB y el grosor 
+										al grosor de la tipografia.
+
+cv2.putText(foto_control,							
+            f"{resultado} {distancia.round(3)}",
+            (50,50),
+            cv2.FONT_HERSHEY_COMPLEX,
+            1,
+            (0,255,0),
+            2)									
+
+
+
+
+
+CREAR UNA BASE DE DATOS DE ROSTROS:
+------------------------------------------------------
+from cv2 import cv2
+import face_recognition as fr
+import os
+from pathlib import Path
+
+ruta= 'Empleados'									#Ruta de la carpeta empleados
+lista_nombres_empleados=[]								#lista que contendra el nombre de mis empleados	
+lista_imagen_empleados= []								#lista que contendra las imagenes base de nuestros empleados
+empleados = os.listdir(ruta)								#empleados contendra una lista con todo lo que tenga esta ruta al hacerle un dir
+					
+for empleado in empleados:
+    imagen_actual = cv2.imread(f"{ruta}\{empleado}")					#cargamos la imagen en la variable, es lo mismo que fr.load_imagen_file(imagen)
+											La diferencia esta en que cv2.imread() utiliza un formato RGB, pero asi debemos pasarlo para estar 												seguros
+
+    lista_imagen_empleados.append(imagen_actual)					#y agregamos esa imagen leida a la lista 
+    lista_nombres_empleados.append(os.path.splitext(empleado)[0])			#usamos el metodo splitext para obtener el nombre sin la extensión como se aprecia
+
+
+def codifiacar(imagenes):								#creamos una función que se encargara de codificar las imagenes que le pasemos
+    imagenes_codificadas=[]								#esta lista contendra las imagenes codificadas
+
+    for imagen in imagenes:								#iteramos en las imagenes pasadas
+        imagen_rgb = cv2.cvtColor(imagen, cv2.COLOR_BGR2RGB)				#primero antes de codificar una imagen se les pasa al formato RGB
+        imagen_codificada = fr.face_encodings(imagen_rgb)[0]				#codificamos cada una de las imagenes
+        imagenes_codificadas.append(imagen_codificada)					#agregamos cada imagen codificada a la lista
+
+    return imagenes_codificadas								#returnamos la lista que contendra las imagenes codificadas
+
+imagenes_empleados_codificadas = codifiacar(lista_imagen_empleados)			guardamos la lista devuelta por la función en imagenes_empleados
+
+
+
+
+
+ENCONTRAR COINCIDENCIAS EN LA BASE DE DATOS:
+--------------------------------------------------------------------------------------------
+#TOMAR UNA IMAGEN DE LA CAMARA WEB
+captura = cv2.VideoCapture(0,cv2.CAP_DSHOW)						#Esta funcion se encargara de abrir la camara web y lo deja abierto, el primer atributo indica si hay 												varias camaras, si solo hay una su valor es 0, si hay varias camaras indicar su id, es ir probando 												probando 
+											El segundo atributo hace referencia la tipo de camara, en windows es cv2.CAP_DSHOW, en Linux es
+											cv2.CAP_V4L, hay muchos tipos
+
+#LEER IMAGEN DE LA CAMARA WEB
+exito, imagen_de_la_captura=captura.read()						#una vez la camara abierta .read() captura un instante de lo que se transmite en la camara,
+											devuelve 2 valores, el primero si la captura fue exitosa y la segunda sera la imagen, osea la captura
+											que hizo con la camara abierta, y luego se cerrara
+imagen_de_la_captura= cv2.cvtColor(imagen_de_la_captura,cv2.COLOR_BGR2RGB)		convierte la imagen capturada a formato rgb
+
+
+if not exito:
+    print('LA CAMARA NO ESTA FUNCIONANDO')						
+
+else:
+    #RECONOCER CARA EN IMAGEN
+    cara_captura = fr.face_locations(imagen_de_la_captura)				#localizamos la cara de la instantanea, recuerda que esto sera una lista
+
+    #CODIFICAR CARA CAPTURADA
+    codificar_captura = fr.face_encodings(imagen_de_la_captura, cara_captura)		#codificamos la cara de la instantanea, recuerda que esto sera una lista
+
+    #BUSCAR COINCIDENCIAS
+    for caraubi, caracodif in zip(cara_captura,codificar_captura):			#hace un zip y los desempaquetamos para elemento de los pasados
+        coincidencias = fr.compare_faces(imagenes_empleados_codificadas,caracodif)	#contendra una lista de booleanos en caso encuentre coincidencias de los empleados y la instantanea
+        distancias = fr.face_distance(imagenes_empleados_codificadas,caracodif)		#contendra una lista de las distancias entre los empleados y la instantanea
+
+        indice_coincidencia = numpy.argmin(distancias)					#obtenemos el indice del valor minimo de la lista pasada
+
+        # MOSTRAR COINCIDENCIAS SI LAS HAY						
+        if distancias[indice_coincidencia]>0.6:						#En caso el valor minimo sea mayor que la tolerancia 6, entonces significa que no es un empleado
+            print('Usted no pertenece a la empresa')		
+        else:										#En caso si lo sea, imprimimos el nombre del empleado
+            print(f"Bienvenido {lista_nombres_empleados[indice_coincidencia]}")		
+
+
+
+
+
+MOSTRAR COINCIDENCIAS:
+--------------------------------------------------------------------
+*Una vez indetificado al personal, procedemos a mostrar la instantanea, ponerle un cuadro en el rostro y el nombre para este ejemplo.
+
+        for caraubic, caracodif in zip(cara_instantanea, codificar_instantanea):
+            distancias = fr.face_distance(empleados_codificados, caracodif)
+            verificaciones = fr.compare_faces(empleados_codificados, caracodif)
+
+            indice_coincidencia = numpy.argmin(distancias)
+
+            if distancias[indice_coincidencia] > 0.6:
+                print('Usted no es un empleado')
+
+            else:
+                nombre = empleados_nombres[indice_coincidencia]
+                y1, x2, y2 , x1 = caraubic
+
+                cv2.putText(instantanea,'BIENVENIDO A SENATI',(int(ancho/2)-10,10),cv2.FONT_HERSHEY_COMPLEX,0.5,(0,255,0),1)
+
+                cv2.rectangle(instantanea,
+                              (x1,y1), (x2,y2),
+                              (0,255,0), 2 )
+
+                cv2.rectangle(instantanea,
+                              (x1,y2-20), (x2,y2),
+                              (0,255,0), cv2.FILLED)
+
+                cv2.putText(instantanea, nombre, (x1+5,y2-10), cv2.FONT_HERSHEY_COMPLEX, 0.5 , (255,255,255),1)
+
+
+
+REGISTRAR ASISTENCIA:
+--------------------------------------
+
+
+
+
+
+
+
+
+
+
+Utilizades de numpy:
+------------------------
+arr.shape							#devuelve las dimensiones del array (altura, ancho , profundidad)
+for i in range(arr.shape[0]):					#hacemos todo lo de abajo para iterar sobre todos los elmentos del array
+    for j in range(arr.shape[1]):
+        for k in range(arr.shape[2]):
+            print(arr[i, j, k])
+
+
+numpy.all(array == 0)
+numpy.zeros((d1,d2,d3))						#arreglo de d1xd2xd3 todos de elementos 0
+numpy.array_equal(array1,array2)				#para comparar si los 2 array son iguales, devuelve un valor booleano
 
 
 ---------------------------------------------------------------------------------------------------------------------------------
@@ -2109,6 +2973,18 @@ enemigo_y=random.randint(50,200)						#elejimos una posicion aleatoria para nues
 *Recuerda que en python por convención el nombre de las funciones comienza con minusculas y el de las clases con masyusculas.
 *EN GENERADORES. tu puedes crear un objeto generador y puedes interar en esta, cada elemento del loop for para el objeto generador devolvera un valor como si lo estuvieras llamando con next.
 *en Pycharm a veces por el interprete y la instalación de paquetes ocurre un error, eso no significa que cuando tu corras tu archivo python vaya haber un error.
+*en pycharm se trabaja mucho con entornos virtuales y es recomendable eso.
+*Las versiones de las librerias que instalemos estan relacionadas con la version de python que esten trabajando, por ejemplo en la libreria 
+opencv-python 4.5.5.62 funciona bien con python 3.11.3.
+*Importante saber que pip a veces no es lo mismo que pip 3, ya que podria ser pip2, ambas hacen distintas instalacion para disntintas versiones de python.
+	alias pip=pip3	, ahora cada que usemos pip se usara pip3
+
+*Editar las variables de entorno del sistema en esa ruta podemos, cambiar para py3.11 sea por defecto lo que utiliza antes de py3.9 solo subiendolo de posicion, lo mismo podemos hacer con pip,etc. o tambien podemos editar desde la terminal pero recuerda que debes hacerlo como administrador.
+
+
+Para hacer un alias en windows
+doskey conda=_conda $*			#usa un alias solo para esta sesión de la terminal
+
 
 
 
@@ -2116,31 +2992,51 @@ enemigo_y=random.randint(50,200)						#elejimos una posicion aleatoria para nues
 *C:\Users\Usuario\AppData\Local\Programs\Python\Python311\Lib\site-packages	->esta es la carpeta donde se guardan los paquetes instalados por el pip
 
 
+*para ver los metodos de una clase, por ejmplo 'persona' o sus atributos, o informacion de un metodo, etc. hacemos lo siguiente:
+	-persona.__doc__				#nos mostrara la documentacion principal de la clase.
+	-dir(persona)					#mostrara una lista cuyos elementos seran los metodos y atributos de la clase dada.
+	-vars(persona)					#mostrara un diccionario, cuyos elemenos tendran por clave el atributo o clase y su valor sera el valor predeterminado que tengan.
+	-help(persona.metodo1)				#mostrara la documentacion del metodo1() que tenga esa clase.
+
+	-modulo.__file__				#muestra la ruta de ese modulo o libreria, etc
+	-import inspect
+		print(inspect.getfile(libreria))	#devuelve la ruta completa de la libreria dada
+
+	- pip list					#muestra los paquetes que tengamos instalados
+	- pip freeze					#muestra los paquetes que tengamos instalados pero con su version
+	- pip install paquete				#instala el paquete mencionado
+	- pip install paquete==version			#instala la version dada	
+	- pip unistall paquete				#desinstala el paquete mencionado
+	- pip show paquete				#muestra información sobre el paquete, sino muestra nada es que no esta instalado
+
+	-where python 					#mostrara todas las rutas en las que hay un interprete python instalado y añadido al path de entorno del sistema
+							veras 2 rutas para la misma versión, por ejemplo:
+							C:\Users\Usuario\AppData\Local\Programs\Python\Python310\Scripts		hace referencia al pip de esta version
+							C:\Users\Usuario\AppData\Local\Programs\Python\Python310\			hace referencia la interprete
 
 
 	Modulos vistos:
 ----------------------------
 import io
 import pathlib
+from pathlib import Path
 import random
 import os	
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+import shutil
+import math
+import datetime
+import time
+import timeit
+import pygame
+import sys
+import re
+import pylint
+import collections
+import zip
+import zipfile
+import unitest
+import bs4			(es beautifulsoup4)
+import requests
 
 
 
