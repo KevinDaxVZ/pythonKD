@@ -2939,11 +2939,19 @@ MOSTRAR COINCIDENCIAS:
 
 REGISTRAR ASISTENCIA:
 --------------------------------------
+def asistencia(nombre):
+    f= open('asistencia.csv','r+')
+    contenido= f.readlines()
+    nombres_marcados= []
 
+    for linea in contenido:
+        nombres_marcados.append(linea.split(',')[0])
 
+    if nombre not in nombres_marcados:
+        hora_actual= datetime.today()
+        f.write(f'\n{nombre}, {hora_actual.strftime("%Hh%Mm%Hs")}')
 
-
-
+    f.close()
 
 
 
